@@ -270,7 +270,12 @@
   });
 
   trigger.addEventListener('click', open);
-  backdrop.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => {
+    const palette = document.getElementById('cmd-palette')!;
+    if (!palette.contains(e.target as Node)) {
+      close();
+    }
+  });
 
   // Theme toggle
   const themeToggle = document.getElementById('theme-toggle')!;
