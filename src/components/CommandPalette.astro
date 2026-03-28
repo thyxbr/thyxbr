@@ -1,0 +1,296 @@
+---
+
+---
+
+<!-- Top bar -->
+<div class="fixed top-0 left-0 right-0 z-40 bg-bg/80 backdrop-blur-sm border-b border-border">
+  <div class="max-w-5xl mx-auto px-4 h-14 flex items-center gap-4">
+    <!-- Logo -->
+    <a href="/" id="cmd-logo" class="font-mono text-lg font-bold text-accent hover:text-accent/80 transition-colors shrink-0">
+      &gt; henrique<span class="text-accent2">_</span>
+    </a>
+
+    <!-- Search + Theme grouped -->
+    <div class="flex items-center gap-2 flex-1 justify-end">
+      <button
+        id="cmd-trigger"
+        class="flex-1 max-w-md flex items-center gap-3 px-4 py-2 rounded-lg border border-border bg-surface/80 text-muted hover:text-text hover:border-accent/50 transition-all text-sm font-mono cursor-pointer"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span class="hidden sm:inline">Buscar</span>
+        <kbd class="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-bg border border-border text-xs text-muted">
+          <span>Ctrl</span><span>+</span><span>K</span>
+        </kbd>
+      </button>
+
+      <button
+        id="theme-toggle"
+        class="text-muted hover:text-accent transition-colors cursor-pointer p-1 shrink-0"
+        aria-label="Alternar tema"
+      >
+        <svg id="icon-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg id="icon-moon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div id="cmd-overlay" class="fixed inset-0 z-50 hidden">
+  <!-- Backdrop -->
+  <div id="cmd-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+  <!-- Palette -->
+  <div class="relative flex justify-center pt-[20vh] px-4">
+    <div id="cmd-palette" class="w-full max-w-2xl bg-surface border border-border rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
+      <!-- Input -->
+      <div class="flex items-center gap-4 px-5 py-4 border-b border-border">
+        <svg class="w-6 h-6 text-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          id="cmd-input"
+          type="text"
+          placeholder="Digite um comando..."
+          autocomplete="off"
+          class="flex-1 bg-transparent text-text placeholder-muted outline-none font-mono text-lg"
+        />
+        <kbd class="flex items-center px-1.5 py-0.5 rounded bg-bg border border-border text-xs text-muted font-mono">
+          ESC
+        </kbd>
+      </div>
+
+      <!-- Results -->
+      <div id="cmd-results" class="max-h-80 overflow-y-auto py-2">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center gap-4 px-4 py-2 border-t border-border text-xs text-muted font-mono">
+        <span class="flex items-center gap-1">
+          <kbd class="px-1 py-0.5 rounded bg-bg border border-border">↑↓</kbd> navegar
+        </span>
+        <span class="flex items-center gap-1">
+          <kbd class="px-1 py-0.5 rounded bg-bg border border-border">↵</kbd> abrir
+        </span>
+        <span class="flex items-center gap-1">
+          <kbd class="px-1 py-0.5 rounded bg-bg border border-border">esc</kbd> fechar
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const commands = [
+    { label: 'Home', description: 'Página inicial', href: '/', icon: 'home', section: 'Páginas' },
+    { label: 'Sobre mim', description: 'Conheça mais sobre mim', href: '/sobre', icon: 'user', section: 'Páginas' },
+    { label: 'Currículo', description: 'Experiência e habilidades', href: '/curriculo', icon: 'briefcase', section: 'Páginas' },
+    { label: 'Blog', description: 'Artigos e publicações', href: '/blog', icon: 'edit', section: 'Páginas' },
+    { label: 'Links', description: 'Links e notícias interessantes', href: '/links', icon: 'link', section: 'Páginas' },
+    { label: 'RSS Feed', description: 'Assinar feed RSS', href: '/rss.xml', icon: 'rss', section: 'Ações' },
+    { label: 'GitHub', description: 'Ver perfil no GitHub', href: 'https://github.com/henrique', icon: 'github', section: 'Social' },
+    { label: 'LinkedIn', description: 'Ver perfil no LinkedIn', href: 'https://www.linkedin.com/in/henrique-souza-dev/', icon: 'linkedin', section: 'Social' },
+  ];
+
+  const icons: Record<string, string> = {
+    home: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>',
+    user: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>',
+    briefcase: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
+    edit: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
+    link: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>',
+    rss: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 5c7.18 0 13 5.82 13 13M6 11a7 7 0 017 7m-6 0a1 1 0 11-2 0 1 1 0 012 0z"/>',
+    github: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>',
+    linkedin: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
+  };
+
+  function getSvgIcon(name: string): string {
+    return `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icons[name] || ''}</svg>`;
+  }
+
+  const overlay = document.getElementById('cmd-overlay')!;
+  const backdrop = document.getElementById('cmd-backdrop')!;
+  const input = document.getElementById('cmd-input') as HTMLInputElement;
+  const results = document.getElementById('cmd-results')!;
+  const trigger = document.getElementById('cmd-trigger')!;
+
+  let selectedIndex = 0;
+  let filteredCommands = [...commands];
+
+  function open() {
+    overlay.classList.remove('hidden');
+    input.value = '';
+    selectedIndex = 0;
+    filteredCommands = [...commands];
+    render();
+    requestAnimationFrame(() => input.focus());
+  }
+
+  function close() {
+    overlay.classList.add('hidden');
+    input.blur();
+  }
+
+  function navigate(href: string) {
+    close();
+    if (href.startsWith('http')) {
+      window.open(href, '_blank', 'noopener,noreferrer');
+    } else {
+      window.location.href = href;
+    }
+  }
+
+  function render() {
+    const sections = new Map<string, typeof commands>();
+    filteredCommands.forEach(cmd => {
+      if (!sections.has(cmd.section)) sections.set(cmd.section, []);
+      sections.get(cmd.section)!.push(cmd);
+    });
+
+    let html = '';
+    let globalIndex = 0;
+
+    if (filteredCommands.length === 0) {
+      html = '<div class="px-4 py-8 text-center text-muted text-sm font-mono">Nenhum resultado encontrado.</div>';
+    } else {
+      sections.forEach((cmds, section) => {
+        html += `<div class="px-3 pt-2 pb-1"><span class="text-xs font-mono text-muted uppercase tracking-wider">${section}</span></div>`;
+        cmds.forEach(cmd => {
+          const isActive = globalIndex === selectedIndex;
+          html += `
+            <button
+              data-index="${globalIndex}"
+              data-href="${cmd.href}"
+              class="cmd-item w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                isActive ? 'bg-accent/10 text-accent' : 'text-text hover:bg-white/5'
+              }"
+            >
+              <span class="${isActive ? 'text-accent' : 'text-muted'}">${getSvgIcon(cmd.icon)}</span>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium">${cmd.label}</div>
+                <div class="cmd-desc text-xs ${isActive ? 'text-accent/60' : 'text-muted'} truncate">${cmd.description}</div>
+              </div>
+              ${cmd.href.startsWith('http') ? '<svg class="w-3 h-3 text-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>' : ''}
+            </button>
+          `;
+          globalIndex++;
+        });
+      });
+    }
+
+    results.innerHTML = html;
+
+    // Highlight sem re-render completo
+    function updateHighlight() {
+      results.querySelectorAll('.cmd-item').forEach((item, i) => {
+        const el = item as HTMLElement;
+        const idx = parseInt(el.dataset.index!);
+        const isActive = idx === selectedIndex;
+        el.className = `cmd-item w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+          isActive ? 'bg-accent/10 text-accent' : 'text-text hover:bg-accent/5'
+        }`;
+        const icon = el.querySelector('span');
+        if (icon) icon.className = isActive ? 'text-accent' : 'text-muted';
+        const desc = el.querySelector('.cmd-desc');
+        if (desc) desc.className = `cmd-desc text-xs ${isActive ? 'text-accent/60' : 'text-muted'} truncate`;
+      });
+    }
+
+    results.querySelectorAll('.cmd-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const href = (item as HTMLElement).dataset.href!;
+        navigate(href);
+      });
+      item.addEventListener('mouseenter', () => {
+        selectedIndex = parseInt((item as HTMLElement).dataset.index!);
+        updateHighlight();
+      });
+    });
+  }
+
+  input.addEventListener('input', () => {
+    const query = input.value.toLowerCase().trim();
+    if (!query) {
+      filteredCommands = [...commands];
+    } else {
+      filteredCommands = commands.filter(cmd =>
+        cmd.label.toLowerCase().includes(query) ||
+        cmd.description.toLowerCase().includes(query) ||
+        cmd.section.toLowerCase().includes(query)
+      );
+    }
+    selectedIndex = 0;
+    render();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    // Ctrl+K or Cmd+K to open
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      if (overlay.classList.contains('hidden')) {
+        open();
+      } else {
+        close();
+      }
+      return;
+    }
+
+    if (overlay.classList.contains('hidden')) return;
+
+    switch (e.key) {
+      case 'Escape':
+        e.preventDefault();
+        close();
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % filteredCommands.length;
+        render();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + filteredCommands.length) % filteredCommands.length;
+        render();
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (filteredCommands[selectedIndex]) {
+          navigate(filteredCommands[selectedIndex].href);
+        }
+        break;
+    }
+  });
+
+  trigger.addEventListener('click', open);
+  backdrop.addEventListener('click', close);
+
+  // Theme toggle
+  const themeToggle = document.getElementById('theme-toggle')!;
+  const iconSun = document.getElementById('icon-sun')!;
+  const iconMoon = document.getElementById('icon-moon')!;
+
+  function applyTheme(dark: boolean) {
+    document.documentElement.classList.toggle('dark', dark);
+    iconSun.classList.toggle('hidden', !dark);
+    iconMoon.classList.toggle('hidden', dark);
+  }
+
+  // Init: check localStorage, default to dark
+  const stored = localStorage.getItem('theme');
+  const isDark = stored ? stored === 'dark' : true;
+  applyTheme(isDark);
+
+  themeToggle.addEventListener('click', () => {
+    const nowDark = !document.documentElement.classList.contains('dark');
+    localStorage.setItem('theme', nowDark ? 'dark' : 'light');
+    applyTheme(nowDark);
+  });
+</script>

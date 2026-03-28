@@ -1,0 +1,40 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  tags?: string[];
+  slug: string;
+}
+
+const { title, description, pubDate, tags = [], slug } = Astro.props;
+
+const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+
+const dateKey = `${pubDate.getFullYear()}-${String(pubDate.getMonth() + 1).padStart(2, '0')}`;
+---
+
+<a href={`/blog/${slug}`} class="filter-item group block p-5 rounded-lg border border-border bg-surface/50 hover:border-accent/50 transition-all" data-date={dateKey} data-tags={tags.join(',')}>
+  <div class="flex items-center gap-2 mb-2">
+    <time class="text-xs font-mono text-muted" datetime={pubDate.toISOString()}>
+      {dateFormatter.format(pubDate)}
+    </time>
+  </div>
+  <h3 class="text-lg font-bold text-headings group-hover:text-accent transition-colors mb-2">
+    {title}
+  </h3>
+  <p class="text-muted text-sm leading-relaxed line-clamp-2">
+    {description}
+  </p>
+  {tags.length > 0 && (
+    <div class="flex flex-wrap gap-1.5 mt-3">
+      {tags.map((tag) => (
+        <span class="text-xs font-mono text-accent2">#{tag}</span>
+      ))}
+    </div>
+  )}
+</a>

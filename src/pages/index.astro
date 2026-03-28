@@ -1,0 +1,63 @@
+---
+import PageLayout from '@/layouts/PageLayout.astro';
+import Hero from '@/components/Hero.astro';
+import PostCard from '@/components/PostCard.astro';
+import LinkCard from '@/components/LinkCard.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const links = (await getCollection('links'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 5);
+---
+
+<PageLayout title="Home" description="Site pessoal de Henrique — Desenvolvedor de Software. Artigos, projetos e currículo.">
+  <Hero />
+
+  {posts.length > 0 && (
+    <section class="mb-16">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-headings">Últimos artigos</h2>
+        <a href="/blog" class="text-sm font-mono text-muted hover:text-accent transition-colors">
+          Ver todos &rarr;
+        </a>
+      </div>
+      <div class="grid gap-4">
+        {posts.map((post) => (
+          <PostCard
+            title={post.data.title}
+            description={post.data.description}
+            pubDate={post.data.pubDate}
+            tags={post.data.tags}
+            slug={post.slug}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+
+  {links.length > 0 && (
+    <section>
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-headings">Links interessantes</h2>
+        <a href="/links" class="text-sm font-mono text-muted hover:text-accent transition-colors">
+          Ver todos &rarr;
+        </a>
+      </div>
+      <div class="grid gap-3">
+        {links.map((link) => (
+          <LinkCard
+            title={link.data.title}
+            url={link.data.url}
+            description={link.data.description}
+            pubDate={link.data.pubDate}
+            source={link.data.source}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+</PageLayout>

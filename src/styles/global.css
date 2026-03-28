@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: 245 245 245;
+    --color-surface: 255 255 255;
+    --color-border: 224 224 224;
+    --color-text: 26 26 26;
+    --color-headings: 0 0 0;
+    --color-muted: 107 114 128;
+    --color-accent: 8 145 178;
+    --color-accent2: 124 58 237;
+  }
+
+  :root.dark {
+    --color-bg: 10 10 10;
+    --color-surface: 20 20 20;
+    --color-border: 38 38 38;
+    --color-text: 224 224 224;
+    --color-headings: 255 255 255;
+    --color-muted: 115 115 115;
+    --color-accent: 34 211 238;
+    --color-accent2: 167 139 250;
+  }
+
+  body {
+    @apply bg-bg text-text font-sans antialiased transition-colors duration-300;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-mono;
+  }
+
+  ::selection {
+    @apply bg-accent/30;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-bg;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full hover:bg-muted;
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
